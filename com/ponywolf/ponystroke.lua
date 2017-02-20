@@ -1,21 +1,23 @@
--- stroke module com.ponywolf.strokeText
 
 -- define module
 local M = {}
-local useContainer = false
+local useContainer = true
+local renderSteps = 1
 
-function M.new(options)
+function M.newText(options)
 
   -- default options for instance
   options = options or {}
   local x = options.x or 0
   local y = options.y or 0
+  local h = options.height
+  options.height = nil
   options.x = 0
   options.y = 0
 
   -- new options 
   local color = options.color or {1,1,1,1}
-  local strokeColor = options.strokeColor or {0.25,0.25,0.25,1}
+  local strokeColor = options.strokeColor or {0,0,0,0.75}
   local strokeWidth = options.strokeWidth or 2
 
   -- create the main text
@@ -24,7 +26,7 @@ function M.new(options)
 
   -- make a bounding box based on the default text
   local width = math.max(text.contentWidth, options.width or 0)
-  local height = math.max(text.contentHeight * 2, options.height or 0)
+  local height = h or math.max(text.contentHeight * 2, width)
 
   --  create snapshot to hold text/strokes
   local stroked
@@ -39,8 +41,8 @@ function M.new(options)
   stroked.unstroked = text
 
   -- draw the strokes
-  for i = -strokeWidth, strokeWidth, 1 do
-    for j = -strokeWidth, strokeWidth, 1 do
+  for i = -strokeWidth, strokeWidth, renderSteps do
+    for j = -strokeWidth, strokeWidth, renderSteps do
       if not (i == 0 and j == 0) then --skip middle
         options.x,options.y = i,j
         local stroke = display.newText(options)
@@ -80,7 +82,29 @@ function M.new(options)
   options.y = y 
   stroked.text = options.text
 
-  -- return insantance
+  -- keep a private access to original table
+  local _stroked = stroked
+
+  -- create proxy
+  stroked = {}
+  stroked.raw = _stroked
+
+  -- create metatable
+  local mt = {
+    __index = function (t,k)
+      return _stroked[k]   -- access the original table
+    end,
+
+    __newindex = function (t,k,v)
+      if k == "text" then 
+        _stroked:update(v)
+      end
+      _stroked[k] = v   -- update original table
+    end
+  }
+  setmetatable(stroked, mt)
+
+  -- return instance
   return stroked
 end
 

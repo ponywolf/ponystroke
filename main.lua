@@ -8,7 +8,7 @@
 
 display.setDefault( "background", 0.333 )
 
-local strokeText = require "com.ponywolf.strokeText"
+local ponystroke = require "com.ponywolf.ponystroke"
 
 local options = {
   text = "This is an example of strokeText in Corona SDK",
@@ -16,27 +16,25 @@ local options = {
   y = display.contentCenterY,
   width = display.contentWidth * 0.8,
   font = native.systemFontBold,
-  fontSize = 42,
+  fontSize = 24,
   align = "center",
   color = {1,1,1,1},
   strokeColor = {0,0,0,1},
   strokeWidth = 2
 }
 
-local text = strokeText.new(options)
-
--- use text:update() to change the text
+local strokedText = ponystroke.newText(options)
 
 local function onTimer()
-  text:update("Use this to change the what the text says")
+  strokedText.text = "Use this to change the what the text says"
 end
 
 timer.performWithDelay(1500, onTimer)
 
 -- since it's a snapshot, it fades like pre-rendered glyph fonts
 
-transition.to(text, {alpha = 0, delay = 3000})
-transition.to(text, {alpha = 1, delay = 4500})
+transition.to(strokedText, {alpha = 0, delay = 3000})
+transition.to(strokedText, {alpha = 1, delay = 4500})
 
 -- That's about it, enjoy
 
