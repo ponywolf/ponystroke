@@ -1,3 +1,4 @@
+-- stroke module com.ponywolf.ponystroke
 
 -- define module
 local M = {}
